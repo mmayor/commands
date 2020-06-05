@@ -12,7 +12,7 @@ import re
 
 
 
-class ScanComplete():
+class ScanComplete(object):
 
     def __init__(self):
 
@@ -22,9 +22,16 @@ class ScanComplete():
         self.__data= ''
         self.__found= ''
         self.__foundFlag= False
-
+        self.__stopScan= False
+        self.__vs= None
         # self.textEdit.setText(self.__text
         # self.updateUi()
+
+    def setStopScan(self, flag):
+        self.__stopScan= flag
+
+    def getStopScan(self):
+        return self.__stopScan
 
     def getFound(self):
         return self.__found
@@ -39,11 +46,38 @@ class ScanComplete():
     def camIdMotor(self):
 
 
-        def conTornos(img):
-            imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            ret, thresh = cv2.threshold(imgray, 127, 255, 0)
-            im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            return im2
+        def conTornos(src):
+            # gris = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+            # Aplicar suavizado Gaussiano
+            # gauss = cv2.GaussianBlur(gris, (5, 5), 0)
+            # canny = cv2.Canny(gauss, 50, 150)
+
+            # imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            # ret, thresh = cv2.threshold(imgray, 127, 255, 0)
+            # im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            # gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+            # gray = cv2.GaussianBlur(gray, (7, 7), 3)
+
+            # t, dst = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_TRIANGLE)
+
+            # gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+            # _, th = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
+            # canny = cv2.Canny(th, 50, 150)
+            # img1, contornos1, hierarchy1 = cv2.findContours(th, cv2.RETR_EXTERNAL,
+            #                                                cv2.CHAIN_APPROX_NONE)
+            # img2, contornos2, hierarchy2 = cv2.findContours(th, cv2.RETR_EXTERNAL,
+            #                                                cv2.CHAIN_APPROX_SIMPLE)
+            # contornos1, hierarchy1 = cv2.findContours(th, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+            gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+            # gray = cv2.blur(gray, (3, 3))
+            gray = cv2.bilateralFilter(gray, 11, 17, 17)  # Blur to reduce noise
+            th3 = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, \
+                                        cv2.THRESH_BINARY, 11, 2)
+            # canny = cv2.Canny(gray, 150, 200)
+            # canny = cv2.dilate(canny, None, iterations=1)
+
+            return th3
 
         def maskNew2(img):
 
@@ -179,8 +213,6 @@ class ScanComplete():
               return cv2.Canny(image, 100, 200)
 
 
-
-
         # skew correction
         def deskew(image):
             coords = np.column_stack(np.where(image > 0))
@@ -210,7 +242,7 @@ class ScanComplete():
         # if the video path was not supplied, grab the reference to the
         # camera
         if not args.get("video", False):
-            vs = VideoStream(src=2).start()
+            vs = VideoStream(src=0).start()
             time.sleep(2.0)
 
         # otherwise, load the video
@@ -255,7 +287,7 @@ class ScanComplete():
             # frame = thresHolding(frame)
             # frame = maskNew1(frame)
             # frame = conTornos(frame)
-            frame = maskNew1(frame)
+            # frame = maskNew1(frame)
 
             d = pytesseract.image_to_data(frame, output_type=Output.DICT)
             #print(d.keys())
@@ -285,34 +317,31 @@ class ScanComplete():
             tempLength = d['text']
 
 
-            # print(len(d['text']))
-
-
             for t in d['text']:
                 findText = re.search(patronNew, t, flags=0)
                 # print("Iteracion: " + t)
-                if findText:
-                    print("Detected Number is:", findText.group(0))
-                    self.__foundFlag= True
-                    self.__found = findText.group(0)
+                if findText or self.__stopScan:
+                    # print("Detected Number is:", findText.group(0))
+                    if not self.__stopScan:
+                        self.__foundFlag= True
+                        self.__found = findText.group(0)
                     break
 
 
             # findText = re.search(patronNew, text, flags=0)
             # print(findText.group(0))
-            if findText:
-                ## print("Detected Number is:", findText.group(0))
+            if findText or self.__stopScan:
+                # print("Detected Number is:", findText.group(0))
+                # print("STOP_SCAN")
                 break
 
-
-
-
-            k = cv2.waitKey(5) & 0xFF
-            if k == 27:
-                break
+            # k = cv2.waitKey(5) & 0xFF
+            # if k == 27:
+            #    break
 
         # if we are not using a video file, stop the video file stream
         if not args.get("video", False):
+            print("STOP_VIDEO")
             vs.stop()
 
         # otherwise, release the camera pointer
@@ -322,10 +351,14 @@ class ScanComplete():
 
 
         # close all windows
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
         # waitTime = findText.group(0)
         # print('waitTime: ' + waitTime)
 
-        return findText.group(0)
+        if self.__foundFlag:
+            return findText.group(0)
+        else:
+            # vs.stop()
+            return False
 
     # camIdMotor()

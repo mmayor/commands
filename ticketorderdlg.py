@@ -59,15 +59,13 @@ class TicketOrderDlg(QDialog,  ui_ticketorderdlg1.Ui_TicketOrderDlg):
         amount = (self.priceSpinBox.value() *
                   self.quantitySpinBox.value())
         enable = not self.customerLineEdit.text() == '' and amount
-        self.buttonBox.button(
-                QDialogButtonBox.Ok).setEnabled(enable)
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(enable)
         self.amountLabel.setText("$ {0:.2f}".format(amount))
 
 
     def result(self):
         when = self.whenDateTimeEdit.dateTime().toPyDateTime()
-        return (str(self.customerLineEdit.text()), when,
-                self.priceSpinBox.value(), self.quantitySpinBox.value())
+        return (str(self.customerLineEdit.text()), when, self.priceSpinBox.value(), self.quantitySpinBox.value())
 
 
 if __name__ == "__main__":

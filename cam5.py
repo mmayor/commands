@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 
 # Iniciamos la camara
-captura = cv2.VideoCapture(1)
+captura = cv2.VideoCapture(2)
 
 while (1):
 
@@ -18,37 +18,23 @@ while (1):
 
     # Establecemos el rango de colores que vamos a detectar
     # En este caso de verde oscuro a verde-azulado claro
-    # verde_bajos = np.array([49, 50, 50], dtype=np.uint8)
-    # verde_altos = np.array([80, 255, 255], dtype=np.uint8)
+    verde_bajos = np.array([49, 50, 50], dtype=np.uint8)
+    verde_altos = np.array([150, 255, 255], dtype=np.uint8)
 
-    verde_bajos = np.array([25, 50, 50], dtype=np.uint8)
-    verde_altos = np.array([108, 255, 255], dtype=np.uint8)
+    verdeBajo = np.array([36, 100, 20], np.uint8)
+    verdeAlto = np.array([70, 255, 255], np.uint8)
 
     rojos_bajos= np.array([128, 140, 193], dtype=np.uint8)
     rojos_altos= np.array([255, 255, 255], dtype=np.uint8)
 
-    azules_bajos= np.array([100, 65, 75], dtype=np.uint8)
-    azules_altos= np.array([130, 255, 255], dtype=np.uint8)
+    # azules_bajos= np.array([100, 65, 75], dtype=np.uint8)
+    # azules_altos= np.array([130, 255, 255], dtype=np.uint8)
 
-
+    azules_bajos = np.array([100, 100, 20], np.uint8)
+    azules_altos = np.array([125, 255, 255], np.uint8)
 
     #Rango de colores detectados:
     #Verdes:
-    '''
-    verde_bajos = np.array([49,50,50])# Crear una mascara con solo los pixeles dentro del rango de verdes
-    verde_altos = np.array([107, 255, 255])
-
-    #Azules:maskRojos = cv2.inRange(hsv, rojos_bajos, rojos_altos)
-    azules_bajos = np.array([100,65,75], dtype=np.uint8)
-    azules_altos = np.array([130, 255, 255], dtype=np.uint8)
-
-
-    #Rojos:
-    rojo_bajos1 = np.array([0,65,75], dtype=np.uint8)
-    rojo_altos1 = np.array([12, 255, 255], dtype=np.uint8)
-    # rojo_bajos2 = np.array([240,65,75], dtype=np.uint8)
-    # rojo_altos2 = np.array([256, 255, 255], dtype=np.uint8)
-    '''
 
     # Encontrar el area de los objetos que detecta la camara Verde
     maskVerdes = cv2.inRange(hsv, verde_bajos, verde_altos)
@@ -127,8 +113,8 @@ while (1):
     # Mostramos la imagen original con la marca del centro y
     # la mascara
     # cv2.imshow('mask', maskVerdes)
-    cv2.imshow('mask', maskRojos)
-    # cv2.imshow('mask', maskAzules)
+    # cv2.imshow('mask', maskRojos)
+    cv2.imshow('mask', maskAzules)
     cv2.imshow('Camara', imagen)
     tecla = cv2.waitKey(5) & 0xFF
     if tecla == 27:

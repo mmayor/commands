@@ -36,6 +36,7 @@ class ScanHoberDlg(QDialog, ui_hober.Ui_scanHober, hober.ScanDelegate):
         self.__found= ''
         # self.textEdit.setText('')
         self.updateUi('')
+        self.__list = QTextEdit()
 
     @pyqtSlot()
     def on_pushButton_clicked(self):
@@ -63,8 +64,9 @@ class ScanHoberDlg(QDialog, ui_hober.Ui_scanHober, hober.ScanDelegate):
 
     def updateUi(self, text):
 
-        #self.textEdit.append(text)
-        pass
+        self.__list.append(text)
+        self.dockWidget.setWidget(self.__list)
+
 
 
 if __name__ == "__main__":
